@@ -1,0 +1,135 @@
+{
+  "_version": "1.76.0",
+  "sap.app": {
+    "id": "com.deloitte.mdg.cost.center.costcenter",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.19.1",
+      "toolsId": "83b1a650-3f7d-464a-a780-ab5ed73884a0"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/cost-center/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "MDG_CostCenter-display": {
+          "semanticObject": "MDG_CostCenter",
+          "action": "display",
+          "title": "{{MDG_CostCenter-display.flpTitle}}",
+          "subTitle": "{{MDG_CostCenter-display.flpSubtitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.141.3",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.deloitte.mdg.cost.center.costcenter.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "com.deloitte.mdg.cost.center.costcenter.view",
+        "async": true,
+        "viewPath": "com.deloitte.mdg.cost.center.costcenter.view"
+      },
+      "routes": [
+        {
+          "name": "RouteOverview",
+          "pattern": ":?query:",
+          "target": [
+            "TargetOverview"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetOverview": {
+          "id": "Overview",
+          "name": "Overview"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "com.deloitte.mdg.cost.center.costcenter.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    },
+    "sap.cloud": {
+      "public": true,
+      "service": "CostCenter-Router"
+    }
+  }
+}

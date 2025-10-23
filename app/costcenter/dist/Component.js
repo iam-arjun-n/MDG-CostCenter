@@ -1,0 +1,2 @@
+sap.ui.define(["sap/ui/core/UIComponent","com/deloitte/mdg/cost/center/costcenter/model/models"],(e,t)=>{"use strict";return e.extend("com.deloitte.mdg.cost.center.costcenter.Component",{metadata:{manifest:"json",interfaces:["sap.ui.core.IAsyncContentCreation"]},init(){e.prototype.init.apply(this,arguments);this.setModel(t.createDeviceModel(),"device");this.getRouter().initialize()}})});
+//# sourceMappingURL=Component.js.map
