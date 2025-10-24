@@ -48,6 +48,6 @@ jobs:
             REPO_NAME=${{ github.repository }}
             TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
             COMMENT="updated"
-            git commit -m "Sync from ${REPO_NAME} on ${TIMESTAMP}: ${COMMENT}"
+            git commit -m "Sync from ${REPO_NAME}: ${COMMENT}"
             git push origin main
           fi
