@@ -32,7 +32,7 @@ jobs:
           TOKEN: ${{ secrets.SYNC_PROJECTS }}
         run: |
           mkdir -p ../target-temp
-          git clone https://x-access-token:${TOKEN}@github.com/iam-arjunn/test.git ../target-temp
+          git clone https://x-access-token:${TOKEN}@github.com/iam-arjunn/Projects ../target-temp
           mkdir -p ../target-temp/${{ env.TARGET_PATH }}
 
       # Step 4: Copy files to target repo safely
