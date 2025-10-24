@@ -1,5 +1,6 @@
 name: Sync Project
 
+# Trigger on any new comment
 on: push
 
 env:
