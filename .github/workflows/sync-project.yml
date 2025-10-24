@@ -14,33 +14,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout source repository
       - name: Checkout source repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # Step 2: Setup Git
       - name: Setup Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Step 3: Clone target repository outside source repo
       - name: Clone target repository
         env:
           TOKEN: ${{ secrets.SYNC_PROJECTS }}
         run: |
           mkdir -p ../target-temp
-          git clone https://x-access-token:${TOKEN}@github.com/${{ env.TARGET_USER }}/${{ env.TARGET_REPO }} ../target-temp
+          git clone https://x-access-token:${TOKEN}@github.com/${{ env.TARGET_USER }}/${{ env.TARGET_REPO }}.git ../target-temp
           mkdir -p ../target-temp/${{ env.TARGET_PATH }}
 
-      # Step 4: Copy files to target repo safely
       - name: Copy files
         run: |
           rsync -av --exclude='.git' --exclude='${{ env.EXCLUDE_FILE }}' ./ ../target-temp/${{ env.TARGET_PATH }}/ --delete
 
-      # Step 5: Commit and push changes
       - name: Commit and push
         working-directory: ../target-temp
         run: |
@@ -48,7 +43,10 @@ jobs:
           if git diff-index --quiet HEAD; then
             echo "No changes to commit"
           else
+            COMMENT_AUTHOR=${{ github.actor }}
+            REPO_NAME=${{ github.repository }}
             TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-            git commit -m "Sync from ${USERNAME}/${REPO} on ${TIMESTAMP}: ${COMMENT}"
+            COMMENT="updated"
+            git commit -m "Sync from ${COMMENT_AUTHOR}/${REPO_NAME} on ${TIMESTAMP}: ${COMMENT}"
             git push origin main
           fi
