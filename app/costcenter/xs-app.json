@@ -16,10 +16,10 @@
     },
     {
       "source": "^/odata/v4/cost-center/(.*)$",
-      "target": "/$1",
+      "target": "/odata/v4/cost-center/$1",
       "destination": "costcenter-service-dest-api",
       "csrfProtection": true,
-      "authenticationType": "none"
+      "authenticationType": "xsuaa"
     },
     {
       "source": "^(.*)$",
