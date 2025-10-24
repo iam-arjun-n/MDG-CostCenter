@@ -1,6 +1,5 @@
 name: Sync Project
 
-# Trigger on push
 on: push
 
 env:
