@@ -1,6 +1,6 @@
 name: Sync Project
 
-# Trigger on push (can change to comment-based trigger if needed)
+# Trigger on push
 on: push
 
 env:
