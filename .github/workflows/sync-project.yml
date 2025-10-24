@@ -4,7 +4,8 @@ name: Sync Project
 on: push
 
 env:
-  TARGET_REPO: https://github.com/iam-arjunn/Projects
+  TARGET_USER: iam-arjunn
+  TARGET_REPO: Projects
   TARGET_PATH: UI5/Deloitte/cost-center
   SECRET_NAME: SYNC_PROJECTS
   EXCLUDE_FILE: .github/workflows/sync-project.yml
@@ -32,7 +33,7 @@ jobs:
           TOKEN: ${{ secrets.SYNC_PROJECTS }}
         run: |
           mkdir -p ../target-temp
-          git clone https://x-access-token:${TOKEN}@${{ env.TARGET_REPO }} ../target-temp
+          git clone https://x-access-token:${TOKEN}@github.com/${{ env.TARGET_USER }}/${{ env.TARGET_REPO }} ../target-temp
           mkdir -p ../target-temp/${{ env.TARGET_PATH }}
 
       # Step 4: Copy files to target repo safely
