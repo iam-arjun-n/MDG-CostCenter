@@ -16,7 +16,7 @@
       "toolsId": "83b1a650-3f7d-464a-a780-ab5ed73884a0"
     },
     "dataSources": {
-      "mainService": {
+      "costCenterService": {
         "uri": "/odata/v4/cost-center/",
         "type": "OData",
         "settings": {
@@ -76,8 +76,8 @@
           "bundleName": "com.deloitte.mdg.cost.center.costcenter.i18n.i18n"
         }
       },
-      "": {
-        "dataSource": "mainService",
+      "costCenterModel": {
+        "dataSource": "costCenterService",
         "preload": true,
         "settings": {
           "operationMode": "Server",
