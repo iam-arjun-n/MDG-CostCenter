@@ -49,6 +49,6 @@ jobs:
             echo "No changes to commit"
           else
             TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-            git commit -m "Sync from source repo on ${TIMESTAMP}"
+            git commit -m "Sync from ${USERNAME}/${REPO} on ${TIMESTAMP}: ${COMMENT}"
             git push origin main
           fi
