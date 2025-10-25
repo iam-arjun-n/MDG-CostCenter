@@ -6,7 +6,7 @@ on: push
 env:
   TARGET_USER: iam-arjunn
   TARGET_REPO: Projects
-  TARGET_PATH: UI5/Deloitte/cost-center
+  TARGET_PATH: SAP UI5/Deloitte/cost-center
   SECRET_NAME: SYNC_PROJECTS
   EXCLUDE_FILE: .github/workflows/sync-project.yml
 
