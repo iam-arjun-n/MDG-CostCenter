@@ -1,15 +1,15 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
-    "sap/ui/model/FilterOperator",
     "sap/ui/model/Filter",
-    "sap/m/Token",
+    "sap/ui/model/FilterOperator",
     "sap/ui/model/FilterType",
+    "sap/m/Token",
     "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
     "sap/ui/export/Spreadsheet",
     "com/deloitte/mdg/cost/center/costcenter/model/formatter"
-], function (Controller, Fragment, FilterOperator, Filter, Token, FilterType, MessageBox, JSONModel, Spreadsheet, formatter) {
+], function (Controller, Fragment, Filter, FilterOperator, FilterType, Token, MessageBox, JSONModel, Spreadsheet, formatter) {
     "use strict";
 
     return Controller.extend("com.deloitte.mdg.cost.center.costcenter.controller.Overview", {
@@ -18,38 +18,74 @@ sap.ui.define([
 
         onInit: function () {
             this._oModel = this.getView().getModel("costCenterModel");
-            
+            this._addCurrentUserToken();
+        },
+
+        _addCurrentUserToken: function () {
+            var oCreatedByInput = this.byId("Overview_Created_By");
+            var sCurrentUser = this.getOwnerComponent().getModel("userInfo")?.getProperty("/email");
+
+            if (sCurrentUser && oCreatedByInput) {
+                oCreatedByInput.addToken(new Token({ text: sCurrentUser }));
+            }
         },
 
         onGo: function () {
-            const oTable = this.byId("Overview_Table");
-            const oBinding = oTable.getBinding("items");
-            const aFilters = [];
+            var oTable = this.byId("Overview_Table");
+            var oBinding = oTable.getBinding("items");
+            var aFilters = [];
 
-            const sReqId = this.byId("requestId").getValue();
-            const sReqType = this.byId("requestType").getSelectedKey();
-            const sWFStatus = this.byId("workflowStatus").getSelectedKey();
-            const sCreatedBy = this.byId("createdBy").getValue();
-
-            if (sReqId) {
-                aFilters.push(new Filter("requestId", FilterOperator.Contains, sReqId));
+            var sGlobalSearch = this.byId("Request_Id").getValue();
+            if (sGlobalSearch) {
+                var aGlobalFilters = [
+                    new Filter("requestId", FilterOperator.Contains, sGlobalSearch),
+                    new Filter("requestType", FilterOperator.Contains, sGlobalSearch),
+                    new Filter("workflowStatus", FilterOperator.Contains, sGlobalSearch),
+                    new Filter("createdBy", FilterOperator.Contains, sGlobalSearch)
+                ];
+                aFilters.push(new Filter({ filters: aGlobalFilters, and: false }));
             }
+
+            var sReqType = this.byId("Request_Type").getSelectedKey();
             if (sReqType) {
                 aFilters.push(new Filter("requestType", FilterOperator.EQ, sReqType));
             }
+
+            var sWFStatus = this.byId("Workflow_Status").getSelectedKey();
             if (sWFStatus) {
                 aFilters.push(new Filter("workflowStatus", FilterOperator.EQ, sWFStatus));
             }
-            if (sCreatedBy) {
-                aFilters.push(new Filter("createdByName", FilterOperator.Contains, sCreatedBy));
+
+            var oCreatedBy = this.byId("Overview_Created_By");
+            var aTokens = oCreatedBy.getTokens();
+            if (aTokens.length > 0) {
+                var aCreatedByFilters = aTokens.map(function (token) {
+                    return new Filter("createdBy", FilterOperator.Contains, token.getText());
+                });
+                aFilters.push(new Filter({ filters: aCreatedByFilters, and: false }));
             }
 
-            oBinding.filter(aFilters);
+            var oDateRangeStart = this.byId("Creation_Date").getDateValue();
+            var oDateRangeEnd = this.byId("Creation_Date").getSecondDateValue();
+            if (oDateRangeStart && oDateRangeEnd) {
+                aFilters.push(new Filter("createdAt", FilterOperator.BT, oDateRangeStart, oDateRangeEnd));
+            }
+
+            oBinding.filter(aFilters, FilterType.Application);
+        },
+
+        onClear: function () {
+            this.byId("Request_Id").setValue("");
+            this.byId("Request_Type").setSelectedKey("");
+            this.byId("Workflow_Status").setSelectedKey("");
+            var oCreatedBy = this.byId("Overview_Created_By");
+            oCreatedBy.destroyTokens();
+            this.byId("Creation_Date").setValue("");
         },
 
         onRequestPress: function (oEvent) {
-            const oCtx = oEvent.getSource().getBindingContext("costCenterModel");
-            const sReqId = oCtx.getProperty("requestId");
+            var oCtx = oEvent.getSource().getBindingContext("costCenterModel");
+            var sReqId = oCtx.getProperty("requestId");
             MessageBox.information("Request ID: " + sReqId);
         },
 
@@ -61,14 +97,49 @@ sap.ui.define([
             MessageBox.information("Change/Extend Cost Center triggered.");
         },
 
-        onUpdateStarted: function () {
-            // Optional hook for growing table updates
-        },
+        onUpdateStarted: function () {},
 
         onRequestSelectionChange: function (oEvent) {
-            const oItem = oEvent.getParameter("listItem");
-            const oCtx = oItem.getBindingContext("costCenterModel");
+            var oItem = oEvent.getParameter("listItem");
+            if (!oItem) return;
+            var oCtx = oItem.getBindingContext("costCenterModel");
             console.log("Selected Request:", oCtx.getProperty("requestId"));
+        },
+
+        onExport: function () {
+            var oTable = this.byId("Overview_Table");
+            var aItems = oTable.getBinding("items").getCurrentContexts().map(ctx => ctx.getObject());
+
+            if (!aItems || aItems.length === 0) {
+                MessageBox.warning("No data to export.");
+                return;
+            }
+
+            var aExportData = aItems.map(item => ({
+                "Request ID": item.requestId,
+                "Request Type": item.requestType,
+                "Workflow Status": item.workflowStatus,
+                "Created On": item.createdAt,
+                "Created By": item.createdBy
+            }));
+
+            var oSettings = {
+                workbook: {
+                    columns: [
+                        { label: 'Request ID', property: 'Request ID' },
+                        { label: 'Request Type', property: 'Request Type' },
+                        { label: 'Workflow Status', property: 'Workflow Status' },
+                        { label: 'Created On', property: 'Created On' },
+                        { label: 'Created By', property: 'Created By' }
+                    ]
+                },
+                dataSource: aExportData,
+                fileName: "CostCenterRequests.xlsx"
+            };
+
+            var oSheet = new Spreadsheet(oSettings);
+            oSheet.build().finally(() => { oSheet.destroy(); });
         }
+
     });
 });
